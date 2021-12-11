@@ -12,3 +12,8 @@ chmod +x virtctl
 mv virtctl /usr/local/bin/
 
 
+k create ns vms
+
+kubectl label namespace vms istio-injection=enabled
+
+k -n vms apply -f vm1.yaml -f vm2.yaml
