@@ -1,0 +1,46 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: cirros
+  labels:
+    name: cirros
+
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        name: cirros
+
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+          - name: default
+            masquerade: {} # the next 3 lines are needed to access the masqueraded VM
+            ports: 
+            - name: special
+              port: 22
+        resources:
+          requests:
+            memory: 64M
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: kubevirt/kubevirt/cirros-container-disk-demo:devel
+        # - cloudInitNoCloud:
+        #     userData: |-
+        #       #cloud-config
+        #       password: fedora
+        #       chpasswd: { expire: False }
+        #   name: cloudinitdisk

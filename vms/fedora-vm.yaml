@@ -1,0 +1,46 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: fedora
+  labels:
+    name: fedora
+
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        name: fedora
+
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+          - name: default
+            masquerade: {} # the next 3 lines are needed to access the masqueraded VM
+            ports: 
+            - name: special
+              port: 22
+        resources:
+          requests:
+            memory: 512M
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: kubevirt/fedora-with-test-tooling-container-disk:devel
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              password: fedora
+              chpasswd: { expire: False }
+          name: cloudinitdisk
